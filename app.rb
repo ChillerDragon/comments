@@ -3,6 +3,25 @@ require 'digest/sha1'
 
 Dir.mkdir File.join(__dir__, "hosts") unless Dir.exist? File.join(__dir__, "hosts")
 
+def gb_left_on_root_partition
+  free = `df -h`.split("\n").select { |l| l.end_with? ' /' }.first.split[3]
+  if free.end_with? 'G'
+    return free.split('G').first.to_i
+  end
+  if free.end_with? 'T'
+    return free.split('T').first.to_i * 1000
+  end
+  return 0
+end
+
+MIN_FREE_GB = 5
+
+free = gb_left_on_root_partition
+puts "free space on / partition: #{free}GB"
+if free < MIN_FREE_GB
+  puts "WARNING! system is ready only because there is not enough space on the drive"
+end
+
 get '/' do
   return 'hello'
 end
@@ -37,6 +56,12 @@ def get_json
 end
 
 post '/comments' do
+  free = gb_left_on_root_partition
+  if free < MIN_FREE_GB
+    fail("disk is full")
+    return
+  end
+
   data = get_json
   return if data.nil?
 
@@ -48,6 +73,12 @@ post '/comments' do
   end
   if message.nil?
     return error_msg("message can not be empty")
+  end
+  if author.length > 32
+    return error_msg("author can not be longer than 32 characters")
+  end
+  if message.length > 2048
+    return error_msg("message can not be longer than 2048 characters")
   end
 
   host_sha = Digest::SHA1.hexdigest request.host
