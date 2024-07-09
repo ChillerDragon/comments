@@ -8,3 +8,8 @@ cd comments
 bundle
 ruby app.rb
 ```
+
+```
+curl -X POST http://localhost:4567/comments --data '{"author": "foo", "message": "bar"}'
+curl 'http://localhost:4567/comments?from=0&count=1'
+```

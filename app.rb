@@ -56,7 +56,7 @@ post '/comments' do
 
   num_comments = Dir["#{host_dir}/*.json"].length
   comment_id = num_comments + 1
-  file_name = File.join(host_dir, "comment_#{comment_id}.json")
+  file_name = File.join(host_dir, "comment_#{comment_id.to_s.rjust(9, "0")}.json")
   content = JSON.generate({
     id: comment_id,
     author:,
@@ -86,10 +86,7 @@ get '/comments' do
   from = 0 if from.negative?
   to = from + count
 
-  p from
-  p to
-
-  range = comment_files[from..to]
+  range = comment_files[from...to]
   fail("invalid range") if range.nil?
   range.each do |comment|
     comments << JSON.parse(File.read comment)
