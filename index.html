@@ -9,6 +9,10 @@
 		</form>
 		<script>
 		const comments = document.querySelector('.comments')
+		const allComments = []
+		const insertComment = (comment) => {
+			comments.insertAdjacentHTML('beforeend', `<div class="comment"><strong>${comment.author}</strong><p>${comment.message}</p></div>`)
+		}
 		document.querySelector('.comment-form').addEventListener('submit', (event) => {
 			event.preventDefault()
 			const author = document.querySelector('#author').value
@@ -25,10 +29,18 @@
 				}
 			)
 				.then(res => res.json())
-				.then(data => console.log(data))
+				.then((data) => {
+					if (data.error) {
+						console.warning(data)
+						return
+					}
+					if (!allComments.find(comment => comment.id === data.id)) {
+						allComments.push(data)
+						insertComment(data)
+					}
+				})
 		})
 		let pendingRead = false
-		const allComments = []
 		const refreshMessages = () => {
 			if (pendingRead) {
 				console.log("there is already a pending get for comments")
@@ -50,12 +62,13 @@
 					allComments.sort((a, b) => a.id - b.id)
 					comments.innerHTML = ''
 					allComments.forEach((comment) => {
-						comments.insertAdjacentHTML('beforeend', `<div class="comment"><strong>${comment.author}</strong><p>${comment.message}</p></div>`)
+						insertComment(comment)
 					})
 					pendingRead = false
 				})
 		}
-		setInterval(refreshMessages, 1000)
+		setInterval(refreshMessages, 10000)
+		refreshMessages()
 		</script>
 	</body>
 </html>
