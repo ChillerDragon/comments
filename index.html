@@ -24,7 +24,8 @@
 					method: 'POST',
 					body: JSON.stringify({
 						author: author,
-						message: message
+						message: message,
+						site: window.location.href
 					})
 				}
 			)
@@ -47,7 +48,7 @@
 				return
 			}
 			pendingRead = true
-			fetch('https://comments.zillyhuhn.com/comments')
+			fetch(`https://comments.zillyhuhn.com/comments?site=${window.location.href }`)
 				.then(res => res.json())
 				.then((data) => {
 					if (data.error) {

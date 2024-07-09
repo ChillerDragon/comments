@@ -9,7 +9,7 @@ set :expose_headers, "location,link"
 
 set :port, 8278
 
-Dir.mkdir File.join(__dir__, "hosts") unless Dir.exist? File.join(__dir__, "hosts")
+Dir.mkdir File.join(__dir__, "sites") unless Dir.exist? File.join(__dir__, "sites")
 
 def gb_left_on_root_partition
   free = `df -h`.split("\n").select { |l| l.end_with? ' /' }.first.split[3]
@@ -75,12 +75,16 @@ post '/comments' do
 
   author = data[:author]
   message = data[:message]
+  site = data[:site]
 
   if author.nil?
     return error_msg("author can not be empty")
   end
   if message.nil?
     return error_msg("message can not be empty")
+  end
+  if site.nil?
+    return error_msg("site can not be empty")
   end
   if author.length > 32
     return error_msg("author can not be longer than 32 characters")
@@ -89,13 +93,13 @@ post '/comments' do
     return error_msg("message can not be longer than 2048 characters")
   end
 
-  host_sha = Digest::SHA1.hexdigest request.host
-  host_dir = File.join(__dir__, "hosts", host_sha)
-  Dir.mkdir host_dir unless Dir.exist? host_dir
+  site_sha = Digest::SHA1.hexdigest site
+  site_dir = File.join(__dir__, "sites", site_sha)
+  Dir.mkdir site_dir unless Dir.exist? site_dir
 
-  num_comments = Dir["#{host_dir}/*.json"].length
+  num_comments = Dir["#{site_dir}/*.json"].length
   comment_id = num_comments + 1
-  file_name = File.join(host_dir, "comment_#{comment_id.to_s.rjust(9, "0")}.json")
+  file_name = File.join(site_dir, "comment_#{comment_id.to_s.rjust(9, "0")}.json")
   content = JSON.generate({
     id: comment_id,
     author:,
@@ -107,13 +111,17 @@ post '/comments' do
 end
 
 get '/comments' do
-  host_sha = Digest::SHA1.hexdigest request.host
-  host_dir = File.join(__dir__, "hosts", host_sha)
-  Dir.mkdir host_dir unless Dir.exist? host_dir
+  site = params[:site]
+  if site.nil?
+    return error_msg("site can not be empty")
+  end
+  site_sha = Digest::SHA1.hexdigest site
+  site_dir = File.join(__dir__, "sites", site_sha)
+  Dir.mkdir site_dir unless Dir.exist? site_dir
 
   comments = []
 
-  comment_files = Dir["#{host_dir}/*.json"]
+  comment_files = Dir["#{site_dir}/*.json"]
 
   count = params[:count] || 5
   count = count.to_i
