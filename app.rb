@@ -1,6 +1,8 @@
 require 'sinatra'
 require 'digest/sha1'
 
+set :port, 8278
+
 Dir.mkdir File.join(__dir__, "hosts") unless Dir.exist? File.join(__dir__, "hosts")
 
 def gb_left_on_root_partition
