@@ -1,0 +1,61 @@
+<html>
+	<head></head>
+	<body>
+		<div class="comments"></div>
+		<form action="#" class="comment-form">
+			<input type="text" id="author" name="author">
+			<input type="textarea" id="message" name="message">
+			<input type="submit" value="send">
+		</form>
+		<script>
+		const comments = document.querySelector('.comments')
+		document.querySelector('.comment-form').addEventListener('submit', (event) => {
+			event.preventDefault()
+			const author = document.querySelector('#author').value
+			const message = document.querySelector('#message').value
+			fetch(
+				'https://comments.zillyhuhn.com/comments',
+				{
+					'Content-Type': 'application/json',
+					method: 'POST',
+					body: JSON.stringify({
+						author: author,
+						message: message
+					})
+				}
+			)
+				.then(res => res.json())
+				.then(data => console.log(data))
+		})
+		let pendingRead = false
+		const allComments = []
+		const refreshMessages = () => {
+			if (pendingRead) {
+				console.log("there is already a pending get for comments")
+				return
+			}
+			pendingRead = true
+			fetch('https://comments.zillyhuhn.com/comments')
+				.then(res => res.json())
+				.then((data) => {
+					if (data.error) {
+						console.warning(data)
+						return
+					}
+					data.comments.forEach((message) => {
+						if (!allComments.find(comment => comment.id === message.id)) {
+							allComments.push(message)
+						}
+					})
+					allComments.sort((a, b) => a.id - b.id)
+					comments.innerHTML = ''
+					allComments.forEach((comment) => {
+						comments.insertAdjacentHTML('beforeend', `<div class="comment"><strong>${comment.author}</strong><p>${comment.message}</p></div>`)
+					})
+					pendingRead = false
+				})
+		}
+		setInterval(refreshMessages, 1000)
+		</script>
+	</body>
+</html>

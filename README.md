@@ -13,3 +13,7 @@ ruby app.rb
 curl -X POST http://localhost:4567/comments --data '{"author": "foo", "message": "bar"}'
 curl 'http://localhost:4567/comments?from=0&count=1'
 ```
+
+Checkout the index.html example. This is how you can get a comment system free of charge for you static html site.
+No backend or database required. No signup or tokens.
+
