@@ -17,6 +17,7 @@ GEM
       rack-protection (= 4.0.0)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
+    sinatra-cors (1.2.0)
     tilt (2.3.0)
 
 PLATFORMS
@@ -25,6 +26,7 @@ PLATFORMS
 
 DEPENDENCIES
   sinatra
+  sinatra-cors (~> 1.2)
 
 BUNDLED WITH
    2.5.11
