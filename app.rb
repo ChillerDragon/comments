@@ -103,8 +103,7 @@ post '/comments' do
     date: Time.now.strftime("%Y-%m-%d %H:%M")
   })
   File.write file_name, content
-
-  return ok
+  return content
 end
 
 get '/comments' do
